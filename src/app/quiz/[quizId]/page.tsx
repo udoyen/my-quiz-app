@@ -3,13 +3,14 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Play, Plus, Trash2 } from "lucide-react"; // Added Play icon
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+// 1. Next.js 15 Interface
 interface QuizPageProps {
-  params: {
+  params: Promise<{
     quizId: string;
-  };
+  }>;
 }
 
 export default async function QuizPage({ params }: QuizPageProps) {
@@ -19,29 +20,31 @@ export default async function QuizPage({ params }: QuizPageProps) {
     redirect("/");
   }
 
-  // 1. Fetch the specific quiz and its questions
+  // 2. Await the params (Crucial fix)
+  const { quizId } = await params;
+
+  // 3. Fetch from DB
   const quiz = await db.quiz.findUnique({
     where: {
-      id: params.quizId,
-      userId: userId, // Ensure user owns this quiz
+      id: quizId,
+      userId: userId,
     },
     include: {
       questions: {
         include: {
-          options: true, // Get options for each question
+          options: true,
         },
       },
     },
   });
 
-  // 2. If quiz doesn't exist or doesn't belong to user, go back
+  // Handle if quiz is not found
   if (!quiz) {
     redirect("/dashboard");
   }
 
   return (
     <div className="container mx-auto py-10 max-w-4xl">
-      {/* Header Section */}
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-4">
           <Link href="/dashboard">
@@ -56,15 +59,25 @@ export default async function QuizPage({ params }: QuizPageProps) {
           <p className="text-gray-500 max-w-2xl">
             {quiz.description || "No description provided."}
           </p>
-          <Link href={`/quiz/${quiz.id}/add-question`}>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> Add Question
-            </Button>
-          </Link>
+          
+          <div className="flex gap-3">
+            {/* Play Button */}
+            <Link href={`/play/${quiz.id}`}>
+              <Button variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-200 border-green-200 border">
+                <Play className="mr-2 h-4 w-4" /> Play Quiz
+              </Button>
+            </Link>
+
+            {/* Add Question Button */}
+            <Link href={`/quiz/${quiz.id}/add-question`}>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" /> Add Question
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* Questions List */}
       <div className="space-y-6">
         <h2 className="text-xl font-semibold">
           Questions ({quiz.questions.length})

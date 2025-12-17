@@ -1,25 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, use } from "react"; // 1. Added 'use' import
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label"; // You might need to install this
+import { Label } from "@/components/ui/label";
 import { ArrowLeft, CheckCircle2, Circle } from "lucide-react";
 import Link from "next/link";
 
 interface AddQuestionPageProps {
-  params: {
+  params: Promise<{ // 2. Changed to Promise
     quizId: string;
-  };
+  }>;
 }
 
 export default function AddQuestionPage({ params }: AddQuestionPageProps) {
+  // 3. Unwrap the params using React.use()
+  const { quizId } = use(params);
+  
   const router = useRouter();
   const [questionText, setQuestionText] = useState("");
   const [options, setOptions] = useState(["", "", "", ""]);
-  const [correctOption, setCorrectOption] = useState<number>(0); // Default to first option
+  const [correctOption, setCorrectOption] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleOptionChange = (index: number, value: string) => {
@@ -36,7 +39,7 @@ export default function AddQuestionPage({ params }: AddQuestionPageProps) {
       const response = await fetch("/api/question", {
         method: "POST",
         body: JSON.stringify({
-          quizId: params.quizId,
+          quizId: quizId, // 4. Use the unwrapped quizId variable
           text: questionText,
           options,
           correctAnswerIndex: correctOption,
@@ -44,7 +47,7 @@ export default function AddQuestionPage({ params }: AddQuestionPageProps) {
       });
 
       if (response.ok) {
-        router.push(`/quiz/${params.quizId}`);
+        router.push(`/quiz/${quizId}`); // 4. Use unwrapped quizId
         router.refresh();
       } else {
         alert("Something went wrong");
@@ -60,7 +63,7 @@ export default function AddQuestionPage({ params }: AddQuestionPageProps) {
   return (
     <div className="container mx-auto py-10 max-w-2xl">
       <div className="mb-6">
-        <Link href={`/quiz/${params.quizId}`}>
+        <Link href={`/quiz/${quizId}`}> {/* 4. Use unwrapped quizId */}
           <Button variant="ghost" className="pl-0 hover:pl-0">
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Quiz
           </Button>
