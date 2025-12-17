@@ -7,7 +7,6 @@ import { CheckCircle2, XCircle, Trophy, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-// Define the shape of our data
 interface Option {
   id: string;
   text: string;
@@ -29,7 +28,6 @@ interface QuizPlayerProps {
 }
 
 export function QuizPlayer({ quiz }: QuizPlayerProps) {
-  const router = useRouter();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
@@ -39,7 +37,7 @@ export function QuizPlayer({ quiz }: QuizPlayerProps) {
   const currentQuestion = quiz.questions[currentQuestionIndex];
 
   const handleOptionClick = (option: Option) => {
-    if (selectedOptionId) return; // Prevent changing answer
+    if (selectedOptionId) return; 
 
     setSelectedOptionId(option.id);
     const correct = option.isCorrect;
@@ -93,7 +91,6 @@ export function QuizPlayer({ quiz }: QuizPlayerProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {currentQuestion.options.map((option) => {
-            // Determine styling based on state
             let styleClass = "border-slate-200 hover:bg-slate-50";
             if (selectedOptionId) {
               if (option.id === selectedOptionId) {
