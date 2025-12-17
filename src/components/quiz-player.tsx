@@ -37,7 +37,7 @@ export function QuizPlayer({ quiz }: QuizPlayerProps) {
   const currentQuestion = quiz.questions[currentQuestionIndex];
 
   const handleOptionClick = (option: Option) => {
-    if (selectedOptionId) return; 
+    if (selectedOptionId) return;
 
     setSelectedOptionId(option.id);
     const correct = option.isCorrect;
@@ -65,8 +65,8 @@ export function QuizPlayer({ quiz }: QuizPlayerProps) {
           <Trophy className="h-20 w-20 text-yellow-500 mx-auto mb-6" />
           <h2 className="text-3xl font-bold mb-4">Quiz Completed!</h2>
           <p className="text-xl mb-8">
-            You scored <span className="font-bold text-green-600">{score}</span> out of{" "}
-            <span className="font-bold">{quiz.questions.length}</span>
+            You scored <span className="font-bold text-green-600">{score}</span>{" "}
+            out of <span className="font-bold">{quiz.questions.length}</span>
           </p>
           <Link href="/dashboard">
             <Button size="lg">Back to Dashboard</Button>
@@ -109,10 +109,12 @@ export function QuizPlayer({ quiz }: QuizPlayerProps) {
                 className={`p-4 border rounded-lg cursor-pointer transition-all flex justify-between items-center ${styleClass}`}
               >
                 <span>{option.text}</span>
-                {selectedOptionId === option.id && (
-                   isCorrect ? <CheckCircle2 className="text-green-600 h-5 w-5" /> 
-                             : <XCircle className="text-red-600 h-5 w-5" />
-                )}
+                {selectedOptionId === option.id &&
+                  (isCorrect ? (
+                    <CheckCircle2 className="text-green-600 h-5 w-5" />
+                  ) : (
+                    <XCircle className="text-red-600 h-5 w-5" />
+                  ))}
               </div>
             );
           })}
@@ -120,7 +122,9 @@ export function QuizPlayer({ quiz }: QuizPlayerProps) {
           {selectedOptionId && (
             <div className="mt-6 flex justify-end">
               <Button onClick={handleNext}>
-                {currentQuestionIndex === quiz.questions.length - 1 ? "Finish Quiz" : "Next Question"} 
+                {currentQuestionIndex === quiz.questions.length - 1
+                  ? "Finish Quiz"
+                  : "Next Question"}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>

@@ -1,29 +1,51 @@
 "use client";
 
-import { useState, use } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, CheckSquare, Square } from "lucide-react"; // Changed icons
+import { ArrowLeft, CheckSquare, Square } from "lucide-react";
 import Link from "next/link";
-import { Switch } from "@/components/ui/switch"; // You might need to install this
+import { Switch } from "@/components/ui/switch";
+import { Question, Option } from "@prisma/client";
 
-interface AddQuestionPageProps {
-  params: Promise<{ quizId: string }>;
+// Define the type for the data we pass in
+type QuestionWithOptions = Question & { options: Option[] };
+
+interface EditQuestionFormProps {
+  quizId: string;
+  question: QuestionWithOptions;
 }
 
-export default function AddQuestionPage({ params }: AddQuestionPageProps) {
-  const { quizId } = use(params);
+export function EditQuestionForm({ quizId, question }: EditQuestionFormProps) {
   const router = useRouter();
 
-  const [questionText, setQuestionText] = useState("");
-  const [options, setOptions] = useState(["", "", "", ""]);
-  // Changed to an array of indices for multiple answers
-  const [correctIndices, setCorrectIndices] = useState<number[]>([]);
-  const [isMultipleChoice, setIsMultipleChoice] = useState(false);
+  // 1. Initialize state with EXISTING data
+  const [questionText, setQuestionText] = useState(question.text);
+
+  // Extract just the text for the inputs
+  const [options, setOptions] = useState(
+    question.options.map((opt) => opt.text),
+  );
+
+  // Find which indices were correct
+  const initialCorrectIndices = question.options
+    .map((opt, index) => (opt.isCorrect ? index : -1))
+    .filter((index) => index !== -1);
+
+  const [correctIndices, setCorrectIndices] = useState<number[]>(
+    initialCorrectIndices,
+  );
+
+  const [isMultipleChoice, setIsMultipleChoice] = useState(
+    question.type === "MULTIPLE",
+  );
+
   const [isLoading, setIsLoading] = useState(false);
+
+  // --- Same Logic as Add Page Below ---
 
   const handleOptionChange = (index: number, value: string) => {
     const newOptions = [...options];
@@ -33,14 +55,12 @@ export default function AddQuestionPage({ params }: AddQuestionPageProps) {
 
   const toggleCorrectOption = (index: number) => {
     if (isMultipleChoice) {
-      // Toggle the index in the array
       if (correctIndices.includes(index)) {
         setCorrectIndices(correctIndices.filter((i) => i !== index));
       } else {
         setCorrectIndices([...correctIndices, index]);
       }
     } else {
-      // Single choice mode: just set one
       setCorrectIndices([index]);
     }
   };
@@ -56,13 +76,13 @@ export default function AddQuestionPage({ params }: AddQuestionPageProps) {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/question", {
-        method: "POST",
+      // 2. Send PATCH request to specific question ID
+      const response = await fetch(`/api/question/${question.id}`, {
+        method: "PATCH",
         body: JSON.stringify({
-          quizId: quizId,
           text: questionText,
           options,
-          correctIndices, // Sending array of indices
+          correctIndices,
           type: isMultipleChoice ? "MULTIPLE" : "SINGLE",
         }),
       });
@@ -75,14 +95,14 @@ export default function AddQuestionPage({ params }: AddQuestionPageProps) {
       }
     } catch (error) {
       console.error(error);
-      alert("Error saving question");
+      alert("Error saving updates");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="container mx-auto py-10 max-w-2xl">
+    <>
       <div className="mb-6">
         <Link href={`/quiz/${quizId}`}>
           <Button variant="ghost" className="pl-0 hover:pl-0">
@@ -94,13 +114,16 @@ export default function AddQuestionPage({ params }: AddQuestionPageProps) {
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>Add New Question</CardTitle>
+            <CardTitle>Edit Question</CardTitle>
             <div className="flex items-center space-x-2">
               <Switch
                 checked={isMultipleChoice}
                 onCheckedChange={(checked) => {
                   setIsMultipleChoice(checked);
-                  setCorrectIndices([]); // Reset selection on mode change
+                  // Don't reset indices on edit, just let them adjust logic if needed
+                  if (!checked && correctIndices.length > 1) {
+                    setCorrectIndices([correctIndices[0]]); // Keep only first if switching to single
+                  }
                 }}
               />
               <Label>Allow Multiple Answers</Label>
@@ -112,7 +135,6 @@ export default function AddQuestionPage({ params }: AddQuestionPageProps) {
             <div className="space-y-2">
               <Label>Question Text</Label>
               <Input
-                placeholder="e.g. Which of these are fruits?"
                 value={questionText}
                 onChange={(e) => setQuestionText(e.target.value)}
                 required
@@ -158,11 +180,11 @@ export default function AddQuestionPage({ params }: AddQuestionPageProps) {
             </div>
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Saving..." : "Save Question"}
+              {isLoading ? "Updating..." : "Update Question"}
             </Button>
           </form>
         </CardContent>
       </Card>
-    </div>
+    </>
   );
 }

@@ -18,13 +18,13 @@ export default async function DashboardPage() {
       userId: userId,
     },
     orderBy: {
-      createdAt: 'desc',
+      createdAt: "desc",
     },
     include: {
       _count: {
-        select: { questions: true }
-      }
-    }
+        select: { questions: true },
+      },
+    },
   });
 
   return (
@@ -40,8 +40,12 @@ export default async function DashboardPage() {
 
       {userQuizzes.length === 0 ? (
         <div className="text-center py-20 bg-slate-50 rounded-lg border border-dashed border-slate-300">
-          <h2 className="text-xl font-semibold mb-2 text-slate-900">No quizzes yet</h2>
-          <p className="text-gray-500 mb-6">You haven&apos;t created any quizzes yet.</p>
+          <h2 className="text-xl font-semibold mb-2 text-slate-900">
+            No quizzes yet
+          </h2>
+          <p className="text-gray-500 mb-6">
+            You haven&apos;t created any quizzes yet.
+          </p>
           <Link href="/create">
             <Button variant="default">Create your first Quiz</Button>
           </Link>
@@ -61,7 +65,7 @@ export default async function DashboardPage() {
                   <span className="bg-slate-100 px-2 py-1 rounded text-slate-600">
                     {quiz._count.questions} Questions
                   </span>
-                  
+
                   {/* --- NEW BUTTON ADDED HERE --- */}
                   <Link href={`/quiz/${quiz.id}`}>
                     <Button variant="link" className="p-0 text-blue-600">
@@ -69,7 +73,6 @@ export default async function DashboardPage() {
                     </Button>
                   </Link>
                   {/* ----------------------------- */}
-                  
                 </div>
               </CardContent>
             </Card>

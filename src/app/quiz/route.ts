@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   try {
     // 1. FIXED: Add 'await' here
     const { userId } = await auth();
-    
+
     const body = await req.json();
     const { title, description } = body;
 
@@ -25,7 +25,6 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ quizId: quiz.id }, { status: 200 });
-
   } catch (error) {
     console.error("[QUIZ_POST]", error);
     return new NextResponse("Internal Error", { status: 500 });
