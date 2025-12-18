@@ -29,6 +29,8 @@ jobs:
           push: true
           # Replace 'johndoe' with your actual Docker Hub username
           tags: ${{ secrets.DOCKER_USERNAME }}/quiz-app:latest
+          build-args: |
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
           
           # This helps with caching to make builds faster
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/quiz-app:buildcache
