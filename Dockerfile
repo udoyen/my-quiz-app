@@ -18,6 +18,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+RUN apk add --no-cache openssl
+
 # 1. Set a fake URL just to pass the build check
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 
