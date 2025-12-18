@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+  quiz-app:
+    image: udoyen/quiz-app:latest
+    container_name: quiz-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      # If your DB is local, we need to override the host so Docker can see it
+      # If you use a cloud DB (Supabase/Neon/AWS), you can remove this line
+      - DATABASE_URL=${DATABASE_URL} 
+    restart: always
