@@ -10,6 +10,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
+      - .env.local
       - .env
     environment:
       # If your DB is local, we need to override the host so Docker can see it
