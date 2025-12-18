@@ -20,6 +20,9 @@ COPY . .
 
 RUN apk add --no-cache openssl
 
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+
 # 1. Set a fake URL just to pass the build check
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 
