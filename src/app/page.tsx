@@ -1,36 +1,68 @@
-import { Button } from "@/components/ui/button";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ShieldCheck, Users } from "lucide-react";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export default async function LandingPage() {
+  const { userId } = await auth();
+
+  // Optional: If already logged in, you might want to auto-redirect
+  // But for this request, we keep the choice visible.
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      <h1 className="text-4xl font-bold mb-8">Quiz Master</h1>
-
-      <div className="space-y-4 text-center">
-        {/* Shows when user is LOGGED OUT */}
-        <SignedOut>
-          <p className="mb-4 text-slate-600">
-            Login to start creating quizzes.
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+      <div className="max-w-4xl w-full space-y-8 text-center">
+        
+        <div className="space-y-2">
+          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
+            Quiz Application
+          </h1>
+          <p className="text-slate-500 text-xl">
+            Select your portal to continue.
           </p>
-          <SignInButton mode="modal">
-            <Button>Sign In</Button>
-          </SignInButton>
-        </SignedOut>
+        </div>
 
-        {/* Shows when user is LOGGED IN */}
-        <SignedIn>
-          <div className="flex flex-col items-center gap-4">
-            <p className="text-lg">Welcome back!</p>
+        <div className="grid md:grid-cols-2 gap-6 mt-8">
+          
+          {/* CLIENT PORTAL */}
+          <Card className="hover:shadow-lg transition-shadow border-t-4 border-blue-500 cursor-pointer">
+            <CardHeader>
+              <Users className="w-12 h-12 text-blue-500 mx-auto mb-2" />
+              <CardTitle>Client Access</CardTitle>
+              <CardDescription>
+                Create and manage your own quizzes.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link href="/dashboard">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                  Enter Dashboard
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
 
-            {/* The User Profile Circle */}
-            <UserButton afterSignOutUrl="/" />
+          {/* OWNER PORTAL */}
+          <Card className="hover:shadow-lg transition-shadow border-t-4 border-purple-600 cursor-pointer">
+            <CardHeader>
+              <ShieldCheck className="w-12 h-12 text-purple-600 mx-auto mb-2" />
+              <CardTitle>Owner Access</CardTitle>
+              <CardDescription>
+                System administration and global overview.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link href="/admin">
+                <Button variant="outline" className="w-full border-purple-600 text-purple-600 hover:bg-purple-50">
+                  Manage System
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
 
-            <Link href="/dashboard">
-              <Button variant="outline">Go to Dashboard</Button>
-            </Link>
-          </div>
-        </SignedIn>
+        </div>
       </div>
     </div>
   );
